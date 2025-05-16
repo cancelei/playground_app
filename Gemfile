@@ -16,6 +16,12 @@ gem "turbo-rails"
 gem "stimulus-rails"
 # Bundle and process CSS [https://github.com/rails/cssbundling-rails]
 gem "cssbundling-rails"
+# Ruby WebSocket client for server-side connections to OpenAI Realtime API
+gem "websocket-client-simple"
+# HTTP client for API calls
+gem "httparty"
+# OpenAI Ruby client
+gem "ruby-openai"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
@@ -49,6 +55,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Load environment variables from .env files [https://github.com/bkeepers/dotenv]
+  gem "dotenv-rails"
 end
 
 group :development do

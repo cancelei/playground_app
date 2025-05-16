@@ -1,0 +1,57 @@
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6 text-indigo-700">OpenAI Realtime API - Transcription Demo</h1>
+  
+  <div class="bg-white rounded-lg shadow-lg p-6 mb-8" data-controller="openai-transcription">
+    <p class="mb-4">This demo demonstrates the transcription-only capability of the OpenAI Realtime API with Voice Activity Detection (VAD).</p>
+    
+    <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <button data-openai-transcription-target="startButton" data-action="click->openai-transcription#start" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition">
+        Start Transcription
+      </button>
+      <button data-openai-transcription-target="stopButton" data-action="click->openai-transcription#stop" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition" disabled>
+        Stop Transcription
+      </button>
+    </div>
+    
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-2">Status: <span data-openai-transcription-target="status" class="font-normal text-gray-600">Idle</span></h2>
+    </div>
+    
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">Live Transcription</h3>
+      <div data-openai-transcription-target="liveTranscript" class="bg-gray-50 p-4 rounded-md min-h-[150px] whitespace-pre-wrap"></div>
+    </div>
+    
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">Final Transcription</h3>
+      <div data-openai-transcription-target="finalTranscript" class="bg-gray-100 border border-gray-200 p-4 rounded-md min-h-[200px] whitespace-pre-wrap"></div>
+    </div>
+
+    <div class="mb-6">
+      <h3 class="text-lg font-semibold mb-2">Cost & Performance Metrics</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+        <div class="bg-blue-50 p-3 rounded-md">
+          <h4 class="font-medium text-sm text-gray-700">Estimated Cost</h4>
+          <p data-openai-transcription-target="costMetric" class="font-mono text-sm mt-1">$0.00</p>
+        </div>
+        <div class="bg-green-50 p-3 rounded-md">
+          <h4 class="font-medium text-sm text-gray-700">Latency</h4>
+          <p data-openai-transcription-target="latencyMetric" class="font-mono text-sm mt-1">0ms</p>
+        </div>
+        <div class="bg-purple-50 p-3 rounded-md">
+          <h4 class="font-medium text-sm text-gray-700">Words Processed</h4>
+          <p data-openai-transcription-target="wordsMetric" class="font-mono text-sm mt-1">0 words</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h2 class="text-xl font-semibold mb-4">Event Log</h2>
+    <div data-openai-transcription-target="eventLog" class="bg-gray-100 p-4 rounded-md overflow-y-auto max-h-96 font-mono text-sm"></div>
+  </div>
+</div>
+
+<%= content_for :head do %>
+  <audio id="audio-element" autoplay style="display:none;"></audio>
+<% end %>

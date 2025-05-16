@@ -6,3 +6,9 @@ import { application } from "./application"
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import OpenaiRealtimeController from "./openai_realtime_controller"
+application.register("openai-realtime", OpenaiRealtimeController)
+
+import OpenaiTranscriptionController from "./openai_transcription_controller"
+application.register("openai-transcription", OpenaiTranscriptionController)

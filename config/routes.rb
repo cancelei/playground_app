@@ -9,6 +9,14 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # OpenAI Realtime API routes
+  get "realtime", to: "realtime#index"
+  post "realtime/session", to: "realtime#create_session"
+  post "realtime/sdp_exchange", to: "realtime#sdp_exchange"
+  get "realtime/websocket", to: "realtime#websocket"
+  get "realtime/transcription", to: "realtime#transcription"
+  post "realtime/process_audio", to: "realtime#process_audio"
+
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "realtime#index"
 end
