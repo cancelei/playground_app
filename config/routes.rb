@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   get "realtime/websocket", to: "realtime#websocket"
   get "realtime/transcription", to: "realtime#transcription"
   post "realtime/process_audio", to: "realtime#process_audio"
+  post "realtime/conversation_turns", to: "realtime#create_conversation_turn"
 
   # Defines the root path route ("/")
   root "realtime#index"

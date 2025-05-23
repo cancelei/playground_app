@@ -1,14 +1,13 @@
 class RealtimeController < ApplicationController
   # Skip CSRF protection for API endpoints
-  skip_forgery_protection only: [ :create_session, :process_audio, :sdp_exchange ]
+  skip_forgery_protection only: [ :create_session, :process_audio, :sdp_exchange, :create_conversation_turn ]
   # GET /realtime
   # Main page with WebRTC implementation for client-side
   def index
     # Available model options - updated to latest versions
     @model_options = [
       "gpt-4o-mini-realtime-preview-2024-12-17",  # More reliable option
-      "gpt-4o-realtime",       # Standard option
-      "gpt-4o-latest-realtime" # Latest version alias
+      "gpt-4o-realtime-preview-2024-12-17",       # Stronger option
     ]
 
     @voice_options = [
@@ -20,6 +19,9 @@ class RealtimeController < ApplicationController
       "shimmer", # Clear, crisp
       "verse"    # Versatile, adaptive
     ]
+
+    # Load conversation turns for the session (placeholder session_id for now)
+    @conversation_turns = ConversationTurn.where(session_id: 'demo').order(:created_at)
 
     # Provide info about the API key being used
     api_key = ENV["OPENAI_API_KEY"]
@@ -201,6 +203,23 @@ class RealtimeController < ApplicationController
     rescue => e
       Rails.logger.error("Error processing audio: #{e.message}")
       render json: { error: e.message }, status: :internal_server_error
+    end
+  end
+
+  # POST /realtime/conversation_turns
+  def create_conversation_turn
+    @conversation_turn = ConversationTurn.new(
+      role: params[:role],
+      content: params[:content],
+      session_id: params[:session_id] || 'demo'
+    )
+    if @conversation_turn.save
+      respond_to do |format|
+        format.html { head :ok }
+        format.json { render json: @conversation_turn, status: :created }
+      end
+    else
+      head :unprocessable_entity
     end
   end
 end

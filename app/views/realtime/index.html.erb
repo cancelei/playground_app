@@ -1,4 +1,6 @@
+<%= csrf_meta_tags %>
 <div class="max-w-4xl mx-auto px-4 py-8" data-controller="openai-realtime">
+  <%= turbo_stream_from "conversation_turns_demo" %>
   <h1 class="text-3xl font-bold mb-6 text-indigo-700">OpenAI Realtime API - WebRTC Demo</h1>
   
   <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -37,17 +39,12 @@
       <h2 class="text-lg font-semibold mb-2">Status: <span data-openai-realtime-target="status" class="font-normal text-gray-600">Idle</span></h2>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="bg-gray-50 p-4 rounded-md">
-        <h3 class="text-lg font-semibold mb-2">User Input</h3>
-        <p data-openai-realtime-target="userTranscript" class="text-gray-700 min-h-[100px] whitespace-pre-wrap"></p>
-      </div>
-      
-      <div class="bg-gray-50 p-4 rounded-md">
-        <h3 class="text-lg font-semibold mb-2">AI Response</h3>
-        <p data-openai-realtime-target="aiResponse" class="text-gray-700 min-h-[100px] whitespace-pre-wrap"></p>
-      </div>
-    </div>
+    <div class="bg-gray-50 p-4 rounded-md mt-8">
+  <h3 class="text-lg font-semibold mb-2">Conversation</h3>
+  <turbo-frame id="conversation_turns">
+    <%= render partial: "realtime/conversation_turn", collection: @conversation_turns, as: :conversation_turn %>
+  </turbo-frame>
+</div>
   </div>
   
   <div class="bg-white rounded-lg shadow-lg p-6">

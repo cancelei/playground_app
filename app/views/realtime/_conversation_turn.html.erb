@@ -1,0 +1,6 @@
+<div class="mb-2">
+  <span class="font-semibold <%= conversation_turn.role == 'user' ? 'text-blue-700' : 'text-green-700' %>">
+    <%= conversation_turn.role.capitalize %>:
+  </span>
+  <span class="whitespace-pre-wrap"><%= conversation_turn.content %></span>
+</div>

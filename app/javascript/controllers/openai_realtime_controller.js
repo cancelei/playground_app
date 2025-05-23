@@ -3,7 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 // OPENAI REALTIME CONTROLLER
 // Makes real API calls to OpenAI using ephemeral token from backend
 export default class extends Controller {
-  static targets = ["status", "eventLog", "startButton", "stopButton", "userTranscript", "aiResponse", "modelSelect", "voiceSelect"];
+  static targets = ["status", "eventLog", "startButton", "stopButton", "modelSelect", "voiceSelect"];
 
   // Arrays to track simulation resources
   simulationTimeouts = [];
@@ -27,8 +27,8 @@ export default class extends Controller {
       this.statusTarget.textContent = "Initializing session...";
       
       // Clear previous content
-      this.userTranscriptTarget.innerHTML = "";
-      this.aiResponseTarget.innerHTML = "";
+      
+      
       
       // Get selected model and voice
       const selectedModel = this.modelSelectTarget.value;
@@ -232,23 +232,13 @@ async setupWebRTCConnection(sessionData, mediaStream) {
       if (event.response && event.response.output) {
         event.response.output.forEach(item => {
           if ((item.type === "text" || item.type === "message") && item.text) {
-            this.aiResponseTarget.innerHTML += item.text + "<br>";
+            // this.aiResponseTarget.innerHTML += item.text + "<br>";
           }
           // Optionally handle other item types (function_call, audio, etc) here
         });
       }
     }
 
-    // Handle streaming transcription events
-    this.handleTranscriptionEvent = (event) => {
-      const { text, is_final } = event.content;
-      if (is_final) {
-        this.userTranscriptTarget.innerHTML += text + "<br>";
-      } else {
-        this.userTranscriptTarget.innerHTML = this.userTranscriptTarget.innerHTML.replace(/<span class=\"interim\">.*<\/span>/g, "");
-        this.userTranscriptTarget.innerHTML += `<span class=\"interim text-gray-400\">${text}</span>`;
-      }
-    }
 
     // Handle message events from the model
     this.handleMessageEvent = (event) => {
