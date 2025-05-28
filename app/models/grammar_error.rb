@@ -26,6 +26,7 @@ class GrammarError < ApplicationRecord
   
   # Common error types
   TYPES = [
+    'verb_form',
     'concordance',
     'verb_tense',
     'preposition',

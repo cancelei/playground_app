@@ -120,18 +120,18 @@ class GrammarAnalysisService
     
     Rails.logger.info("Making request to OpenAI API endpoint: #{uri}")
     
-    # Prepare the prompt for grammar analysis
-    system_prompt = "You are a grammar analysis tool. Analyze the provided text for grammar errors. "
-    system_prompt += "For each error, provide: "
-    system_prompt += "1) The error type (e.g., concordance, verb_tense, preposition, article, word_order, spelling, punctuation, other) "
-    system_prompt += "2) A description of the error "
-    system_prompt += "3) The position (character index) where the error starts (0-indexed) "
-    system_prompt += "4) The length of the error text "
-    system_prompt += "5) The corrected text "
-    system_prompt += "6) An explanation of the correction "
-    system_prompt += "Return the results in this exact JSON format: { \"errors\": [ { \"type\": \"error_type\", \"description\": \"error_description\", \"position\": number, \"length\": number, \"correction\": { \"text\": \"corrected_text\", \"explanation\": \"explanation_text\" } } ] }. "
-    system_prompt += "If there are no errors, return { \"errors\": [] }. Be precise with the JSON format and character positions."
-    
+    # Prepare the system prompt for grammar analysis
+    system_prompt = "You are a grammar analysis tool. Analyze the input text for grammatical errors. "
+    system_prompt += "For each error, return: "
+    system_prompt += "1) Error type (e.g., verb_form, concordance, verb_tense, preposition, article, word_order, spelling, punctuation, other) "
+    system_prompt += "2) Description of the issue "
+    system_prompt += "3) Start position (0-based character index) "
+    system_prompt += "4) Length of the erroneous text "
+    system_prompt += "5) Corrected text  "
+    system_prompt += "6) Explanation of the correction "
+    system_prompt += "Respond strictly in the following JSON format: { \"errors\": [ { \"type\": \"error_type\", \"description\": \"error_description\", \"position\": number, \"length\": number, \"correction\": { \"text\": \"corrected_text\", \"explanation\": \"explanation_text\" } } ] }. "
+    system_prompt += "If there are no errors, return: { \"errors\": [] }. Ensure the JSON structure and character positions are exact."
+
     # Set up the request body
     request_body = {
       model: "gpt-4",
