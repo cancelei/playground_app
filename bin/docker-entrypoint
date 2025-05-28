@@ -14,10 +14,14 @@ if [ "$1" == "web+worker" ]; then
   echo "Preparing main database..."
   ./bin/rails db:prepare
   
-  # Prepare SolidQueue database if it's separate
-  if [ -f "./db/queue_migrate" ] || [ -d "./db/queue_migrate" ]; then
-    echo "Preparing SolidQueue database..."
-    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails solid_queue:db:prepare
+  # Prepare SolidQueue database
+  echo "Preparing SolidQueue database..."
+  if [ -f "./db/queue_schema.rb" ]; then
+    echo "Loading SolidQueue schema..."
+    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails solid_queue:load_schema
+  else
+    echo "Running SolidQueue setup..."
+    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails db:migrate
   fi
   
   # Check if Foreman is installed
@@ -40,10 +44,14 @@ elif [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   echo "Preparing main database..."
   ./bin/rails db:prepare
   
-  # Prepare SolidQueue database if it's separate
-  if [ -f "./db/queue_migrate" ] || [ -d "./db/queue_migrate" ]; then
-    echo "Preparing SolidQueue database..."
-    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails solid_queue:db:prepare
+  # Prepare SolidQueue database
+  echo "Preparing SolidQueue database..."
+  if [ -f "./db/queue_schema.rb" ]; then
+    echo "Loading SolidQueue schema..."
+    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails solid_queue:load_schema
+  else
+    echo "Running SolidQueue setup..."
+    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails db:migrate
   fi
   
   exec "${@}"
