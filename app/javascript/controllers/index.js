@@ -12,3 +12,9 @@ application.register("openai-realtime", OpenaiRealtimeController)
 
 import OpenaiTranscriptionController from "./openai_transcription_controller"
 application.register("openai-transcription", OpenaiTranscriptionController)
+
+import AnalyticsController from "./analytics_controller"
+application.register("analytics", AnalyticsController)
+
+import TranscriptionController from "./transcription_controller"
+application.register("transcription", TranscriptionController)

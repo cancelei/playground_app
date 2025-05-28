@@ -18,6 +18,18 @@ Rails.application.routes.draw do
   post "realtime/process_audio", to: "realtime#process_audio"
   post "realtime/conversation_turns", to: "realtime#create_conversation_turn"
 
+  # Audio Transcription & Grammar Checker routes
+  get "transcription", to: "transcription#index", as: :transcription
+  post "transcription", to: "transcription#create", as: :transcription_create
+  get "transcription/:id", to: "transcription#show", as: :transcription_show
+  post "transcription/transcribe", to: "transcription#transcribe", as: :transcription_transcribe
+
+  # Practice History routes
+  get "practice_history", to: "practice_history#index", as: :practice_history
+
+  # Analytics routes
+  get "analytics", to: "analytics#index", as: :analytics
+
   # Defines the root path route ("/")
   root "realtime#index"
 end

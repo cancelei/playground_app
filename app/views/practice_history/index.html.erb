@@ -1,0 +1,83 @@
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h1 class="text-2xl font-bold text-gray-900">Practice History</h1>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">Review your past transcriptions and grammar errors</p>
+  </div>
+
+  <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+    <div class="mb-6">
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Filter by Error Type</h2>
+      <div class="flex flex-wrap gap-2">
+        <%= link_to "All Types", practice_history_path, class: "inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 #{params[:error_type].blank? ? 'ring-2 ring-indigo-500 ring-offset-2' : ''}" %>
+        
+        <% GrammarError::TYPES.each do |error_type| %>
+          <%= link_to error_type.titleize, practice_history_path(error_type: error_type), class: "inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 #{params[:error_type] == error_type ? 'ring-2 ring-indigo-500 ring-offset-2' : ''}" %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @transcriptions.any? %>
+      <div class="mt-8 flow-root">
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Date</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Transcription</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Error Types</th>
+                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Errors</th>
+                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                      <span class="sr-only">View</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  <% @transcriptions.each do |transcription| %>
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                        <%= transcription.created_at.strftime("%b %d, %Y") %>
+                      </td>
+                      <td class="px-3 py-4 text-sm text-gray-500">
+                        <%= truncate(transcription.text_content, length: 50) %>
+                      </td>
+                      <td class="px-3 py-4 text-sm text-gray-500">
+                        <div class="flex flex-wrap gap-1">
+                          <% transcription.grammar_errors.pluck(:error_type).uniq.each do |error_type| %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                              <%= error_type.titleize %>
+                            </span>
+                          <% end %>
+                        </div>
+                      </td>
+                      <td class="px-3 py-4 text-sm text-gray-500">
+                        <%= transcription.grammar_errors.count %>
+                      </td>
+                      <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <%= link_to "View Details", transcription_path(transcription), class: "text-indigo-600 hover:text-indigo-900" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No practice history found</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          <%= params[:error_type].present? ? "No transcriptions with '#{params[:error_type].titleize}' errors found." : "Start by recording and transcribing some audio." %>
+        </p>
+        <div class="mt-6">
+          <%= link_to "Record Audio", transcription_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

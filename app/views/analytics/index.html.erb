@@ -1,0 +1,68 @@
+<div class="bg-white shadow overflow-hidden sm:rounded-lg" data-controller="analytics">
+  <div class="px-4 py-5 sm:px-6">
+    <h1 class="text-2xl font-bold text-gray-900">Error Analytics</h1>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">Track common grammar errors and user progress</p>
+  </div>
+
+  <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+    <% if @error_type_counts.any? %>
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- Error Types Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Errors by Type</h2>
+          <div class="h-64">
+            <canvas 
+              data-analytics-target="errorTypesChart"
+              data-chart-data="<%= { labels: @error_type_counts.keys.map(&:titleize), values: @error_type_counts.values }.to_json %>"
+            ></canvas>
+          </div>
+        </div>
+
+        <!-- Most Common Errors -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Most Common Errors</h2>
+          <div class="overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Error Description</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @most_common_errors.each do |error| %>
+                  <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= error.error_description %></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= error.count %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Weekly Progress Chart -->
+        <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Weekly Progress</h2>
+          <div class="h-64">
+            <canvas 
+              data-analytics-target="weeklyProgressChart"
+              data-chart-data="<%= { labels: @weekly_errors.keys.map { |date| date.strftime("%b %d") }, values: @weekly_errors.values }.to_json %>"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No analytics data available</h3>
+        <p class="mt-1 text-sm text-gray-500">Start by recording and transcribing some audio to generate analytics.</p>
+        <div class="mt-6">
+          <%= link_to "Record Audio", transcription_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

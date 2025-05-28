@@ -1,0 +1,72 @@
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h1 class="text-2xl font-bold text-gray-900">Audio Transcription & Grammar Checker</h1>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">Record or upload audio to transcribe and check for grammar errors</p>
+  </div>
+
+  <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+    <div class="grid grid-cols-1 gap-6">
+      <div id="audio-recorder" class="bg-gray-50 p-4 rounded-lg" data-controller="transcription">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Record Audio</h2>
+        
+        <div class="flex items-center space-x-4">
+          <button data-transcription-target="recordButton" data-action="click->transcription#startRecording" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <circle cx="10" cy="10" r="6" />
+            </svg>
+            Start Recording
+          </button>
+          
+          <button data-transcription-target="stopButton" data-action="click->transcription#stopRecording" class="hidden inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <rect x="6" y="6" width="8" height="8" />
+            </svg>
+            Stop Recording
+          </button>
+        </div>
+        
+        <div data-transcription-target="recordingStatus" class="mt-2 text-sm text-gray-500"></div>
+        
+        <div data-transcription-target="audioPreview" class="mt-4 hidden">
+          <audio data-transcription-target="audioPlayer" controls class="w-full"></audio>
+        </div>
+        
+        <%= form_with model: Transcription.new, url: transcription_path, method: :post, id: 'transcription-form', class: 'mt-4 hidden', data: { transcription_target: "transcriptionForm" } do |form| %>
+          <%= form.hidden_field :audio_data %>
+          <%= form.hidden_field :text_content %>
+          
+          <div class="mt-4">
+            <label for="transcription-text" class="block text-sm font-medium text-gray-700">Transcription Preview</label>
+            <div data-transcription-target="transcriptionText" class="mt-1 p-3 bg-gray-100 rounded-md min-h-[100px]"></div>
+          </div>
+          
+          <div class="mt-4">
+            <%= form.submit "Save & Analyze Grammar", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+          </div>
+        <% end %>
+      </div>
+      
+      <div id="transcriptions-list">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Recent Transcriptions</h2>
+        
+        <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Transcription</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Errors</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created</th>
+                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                  <span class="sr-only">View</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white" id="transcriptions-table-body">
+              <%= render partial: 'transcription/transcription', collection: @transcriptions %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

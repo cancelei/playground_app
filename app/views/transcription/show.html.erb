@@ -1,0 +1,261 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <!-- Header with back button -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Transcription</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Created <%= time_ago_in_words(@transcription.created_at) %> ago
+      </p>
+    </div>
+    <%= link_to transcription_path, class: "mt-3 sm:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+      </svg>
+      Back to Transcriptions
+    <% end %>
+  </div>
+  
+  <!-- Main content -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <!-- Audio Player Card -->
+    <div class="p-4 sm:p-6 border-b border-gray-200">
+      <h2 class="text-lg font-medium text-gray-900 mb-3">Audio Recording</h2>
+      <div class="bg-gray-50 rounded-lg p-4">
+        <% if @transcription.audio_file.attached? %>
+          <audio controls class="w-full">
+            <source src="<%= rails_blob_path(@transcription.audio_file) %>" type="<%= @transcription.audio_file.content_type %>">
+            Your browser does not support the audio element.
+          </audio>
+        <% else %>
+          <div class="flex items-center justify-center h-20 bg-gray-100 rounded-md">
+            <p class="text-sm text-gray-500">No audio file available</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Transcription Content -->
+    <div class="p-4 sm:p-6 border-b border-gray-200">
+      <div class="mb-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-medium text-gray-900">Original Transcription</h2>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            <%= @transcription.grammar_errors.count %> <%= @transcription.grammar_errors.count == 1 ? 'error' : 'errors' %> detected
+          </span>
+        </div>
+        <div class="mt-3 p-4 bg-gray-50 rounded-lg">
+          <% if @transcription.grammar_errors.any? %>
+            <div class="relative text-base sm:text-lg" data-controller="grammar-error">
+              <% 
+                # Create a marked-up version of the text with error highlighting
+                text = @transcription.text_content.dup
+                # Create an array to store error markup positions
+                error_markups = []
+                
+                # Collect all error markups
+                @transcription.grammar_errors.each do |error|
+                  error_text = error.error_text
+                  
+                  # Prepare correction content conditionally
+                  correction_content = ""
+                  if error.grammar_corrections.any?
+                    correction_content = %Q{
+                      <span class="block mt-1 text-green-600">Suggestion: #{error.grammar_corrections.first.corrected_text}</span>
+                      <span class="block mt-1 text-gray-600 text-xs">#{error.grammar_corrections.first.explanation}</span>
+                    }
+                  end
+                  
+                  # Create the error markup with hover and click functionality
+                  opening_tag = %Q{<span data-grammar-error-target="error" class="relative inline-block bg-red-100 border-b-2 border-red-500 cursor-pointer hover:bg-red-200">}
+                  
+                  # Create the tooltip with improved positioning for mobile
+                  closing_tag = %Q{<span class="grammar-tooltip absolute bottom-full left-0 sm:left-1/2 transform sm:-translate-x-1/2 mb-1 p-2 bg-white rounded shadow-lg text-xs w-64 hidden z-10 border border-gray-200">
+                                    <strong class="block text-red-600 mb-1">#{error.error_type.titleize} Error:</strong>
+                                    <span class="text-gray-700">#{error.error_description}</span>
+                                    #{correction_content}
+                                  </span></span>}
+                  
+                  # Store the markup for this error
+                  error_markups << {
+                    position: error.position,
+                    length: error.length,
+                    opening_tag: opening_tag,
+                    closing_tag: closing_tag
+                  }
+                end
+                
+                # Sort error markups by position in reverse order to avoid offset issues
+                error_markups.sort_by! { |markup| -markup[:position] }
+                
+                # Apply all error markups with boundary validation
+                error_markups.each do |markup|
+                  # Ensure positions are within text boundaries
+                  if markup[:position] >= 0 && markup[:position] <= text.length && 
+                     (markup[:position] + markup[:length]) <= text.length
+                    # Insert closing tag first to avoid position shifting
+                    text.insert(markup[:position] + markup[:length], markup[:closing_tag])
+                    text.insert(markup[:position], markup[:opening_tag])
+                  else
+                    # Log error for debugging
+                    Rails.logger.error("Invalid position for error markup: position=#{markup[:position]}, length=#{markup[:length]}, text length=#{text.length}")
+                  end
+                end
+              %>
+              <%= raw text %>
+              
+              <!-- Debug information -->
+              <div class="mt-4 p-2 bg-gray-100 rounded text-xs text-gray-500 hidden">
+                <h4 class="font-medium">Debug Info:</h4>
+                <% @transcription.grammar_errors.each do |error| %>
+                  <div class="mt-1">
+                    <div>Error at position <%= error.position %>, length: <%= error.length %></div>
+                    <div>Text: "<%= error.error_text %>"</div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <p class="text-base sm:text-lg"><%= @transcription.text_content %></p>
+            <% if @transcription.analyzed? %>
+              <div class="mt-2 text-sm text-green-600">No grammar errors detected!</div>
+            <% else %>
+              <div class="mt-2 text-sm text-gray-500">Grammar analysis pending...</div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <% if @transcription.grammar_errors.any? %>
+      <!-- Corrected Version -->
+      <div class="p-4 sm:p-6 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900 mb-3">Corrected Version</h2>
+        <div class="p-4 bg-green-50 rounded-lg">
+          <p class="text-base sm:text-lg"><%= @transcription.clean_corrected_text %></p>
+        </div>
+      </div>
+      
+      <!-- Grammar Errors Section with Cards for Mobile -->
+      <div class="p-4 sm:p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Grammar Errors (<%= @transcription.grammar_errors.count %>)</h2>
+        
+        <!-- Mobile view: Cards -->
+        <div class="block md:hidden space-y-4">
+          <% @transcription.grammar_errors.includes(:grammar_corrections).each do |error| %>
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+              <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  <%= error.error_type.titleize %>
+                </span>
+                <span class="text-xs text-gray-500">Position: <%= error.position %></span>
+              </div>
+              <div class="p-4 space-y-4">
+                <!-- Context section showing text before and after the error -->
+                <div>
+                  <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Context</h4>
+                  <div class="text-sm">
+                    <% 
+                      # Get some context around the error
+                      start_pos = [error.position - 20, 0].max
+                      end_pos = [error.position + error.length + 20, @transcription.text_content.length].min
+                      before_text = @transcription.text_content[start_pos...error.position]
+                      error_text = @transcription.text_content[error.position...(error.position + error.length)]
+                      after_text = @transcription.text_content[(error.position + error.length)...end_pos]
+                    %>
+                    <span class="text-gray-700"><%= before_text %></span>
+                    <span class="bg-red-100 px-1 py-0.5 rounded font-medium"><%= error_text %></span>
+                    <span class="text-gray-700"><%= after_text %></span>
+                  </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row sm:space-x-4">
+                  <div class="flex-1 mb-3 sm:mb-0">
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Original Text</h4>
+                    <div class="p-2 bg-red-100 rounded text-sm"><%= error.error_text %></div>
+                  </div>
+                  
+                  <% if error.grammar_corrections.any? %>
+                    <div class="flex-1">
+                      <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Suggestion</h4>
+                      <div class="p-2 bg-green-100 rounded text-sm"><%= error.grammar_corrections.first.corrected_text %></div>
+                    </div>
+                  <% end %>
+                </div>
+                
+                <% if error.grammar_corrections.any? %>
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Explanation</h4>
+                    <p class="text-sm text-gray-700 p-2 bg-blue-50 rounded"><%= error.grammar_corrections.first.explanation %></p>
+                  </div>
+                <% else %>
+                  <p class="text-sm text-gray-500 italic">No correction available</p>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Desktop view: Table with context and improved display -->
+        <div class="hidden md:block overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Error Type</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Context</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Original Text</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Suggestion</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Explanation</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              <% @transcription.grammar_errors.includes(:grammar_corrections).each do |error| %>
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                    <div class="flex flex-col">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <%= error.error_type.titleize %>
+                      </span>
+                      <span class="text-xs text-gray-500 mt-1">Pos: <%= error.position %></span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-4 text-sm text-gray-500 max-w-xs">
+                    <% 
+                      # Get some context around the error
+                      start_pos = [error.position - 15, 0].max
+                      end_pos = [error.position + error.length + 15, @transcription.text_content.length].min
+                      before_text = @transcription.text_content[start_pos...error.position]
+                      error_text = @transcription.text_content[error.position...(error.position + error.length)]
+                      after_text = @transcription.text_content[(error.position + error.length)...end_pos]
+                    %>
+                    <div class="line-clamp-2">
+                      <span class="text-gray-700"><%= before_text %></span>
+                      <span class="bg-red-100 px-1 py-0.5 rounded font-medium"><%= error_text %></span>
+                      <span class="text-gray-700"><%= after_text %></span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-4 text-sm text-gray-500">
+                    <div class="bg-red-100 px-2 py-1 rounded"><%= error.error_text %></div>
+                  </td>
+                  <td class="px-3 py-4 text-sm text-gray-500">
+                    <% if error.grammar_corrections.any? %>
+                      <div class="bg-green-100 px-2 py-1 rounded"><%= error.grammar_corrections.first.corrected_text %></div>
+                    <% else %>
+                      <span class="text-gray-400 italic">No suggestion</span>
+                    <% end %>
+                  </td>
+                  <td class="px-3 py-4 text-sm text-gray-500 max-w-sm">
+                    <% if error.grammar_corrections.any? %>
+                      <div class="line-clamp-3 hover:line-clamp-none"><%= error.grammar_corrections.first.explanation %></div>
+                    <% else %>
+                      <span class="text-gray-400 italic">No explanation</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

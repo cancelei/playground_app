@@ -1,0 +1,47 @@
+/* Custom styles for grammar error tooltips */
+
+/* Ensure tooltips appear on tap on mobile devices */
+.grammar-tooltip {
+  touch-action: none;
+}
+
+/* Add some animations for better UX */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.grammar-tooltip.block {
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Add line-clamp utilities if not already in Tailwind */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.hover\:line-clamp-none:hover {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+
+/* Improve tooltip positioning */
+@media (max-width: 640px) {
+  .grammar-tooltip {
+    width: calc(100vw - 2rem) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
