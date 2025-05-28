@@ -6,56 +6,19 @@ if [ -z "${LD_PRELOAD+x}" ]; then
     export LD_PRELOAD
 fi
 
-# Check if we should run both web and worker processes
-if [ "$1" == "web+worker" ]; then
-  echo "Starting both web server and worker processes..."
-  
-  # Prepare databases
-  echo "Preparing main database..."
-  ./bin/rails db:prepare
-  
-  # Prepare SolidQueue database
-  echo "Preparing SolidQueue database..."
-  if [ -f "./db/queue_schema.rb" ]; then
-    echo "Loading SolidQueue schema..."
-    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails solid_queue:load_schema
-  else
-    echo "Running SolidQueue setup..."
-    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails db:migrate
-  fi
-  
-  # Check if Foreman is installed
-  if ! command -v foreman &> /dev/null; then
-    echo "Installing foreman..."
-    gem install foreman
-  fi
+# Always prepare the main database
+echo "Preparing main database..."
+./bin/rails db:prepare
 
-  # Create a temporary Procfile for production
-  cat > Procfile.prod << EOL
-web: ./bin/thrust ./bin/rails server
-worker: ./bin/rails solid_queue:start
-EOL
-
-  # Start both processes using foreman
-  exec foreman start -f Procfile.prod
-
-# If running just the rails server, prepare database
-elif [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  echo "Preparing main database..."
-  ./bin/rails db:prepare
-  
-  # Prepare SolidQueue database
-  echo "Preparing SolidQueue database..."
-  if [ -f "./db/queue_schema.rb" ]; then
-    echo "Loading SolidQueue schema..."
-    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails solid_queue:load_schema
-  else
-    echo "Running SolidQueue setup..."
-    RAILS_ENV=${RAILS_ENV:-production} ./bin/rails db:migrate
-  fi
-  
-  exec "${@}"
+# Prepare SolidQueue database
+echo "Preparing SolidQueue database..."
+if [ -f "./db/queue_schema.rb" ]; then
+  echo "Loading SolidQueue schema..."
+  RAILS_ENV=${RAILS_ENV:-production} ./bin/rails solid_queue:load_schema
 else
-  # For any other command, just execute it
-  exec "${@}"
+  echo "Running SolidQueue setup..."
+  RAILS_ENV=${RAILS_ENV:-production} ./bin/rails db:migrate
 fi
+
+# Execute the command passed to the entrypoint
+exec "${@}"

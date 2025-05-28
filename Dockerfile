@@ -121,11 +121,14 @@ ENV CHROME_PATH=/usr/bin/google-chrome-stable \
 
 USER 1000:1000
 
+# Install Foreman for process management
+RUN gem install foreman
+
 # Entrypoint prepares the database and can run both web and worker processes.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start server via Thruster by default, this can be overwritten at runtime
 EXPOSE 80
-# Default to running the web server only
-# To run with both web server and worker processes, override CMD with: ["web+worker"]
-CMD ["./bin/thrust", "./bin/rails", "server"]
+
+# Use Procfile to run both web and worker processes
+CMD ["foreman", "start", "-f", "Procfile"]
