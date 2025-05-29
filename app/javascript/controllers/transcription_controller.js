@@ -12,18 +12,45 @@ export default class extends Controller {
   }
 
   startRecording() {
-    navigator.mediaDevices.getUserMedia({ audio: true })
+    // Request audio with specific constraints for better compatibility
+    const constraints = {
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    }
+    
+    navigator.mediaDevices.getUserMedia(constraints)
       .then(stream => {
-        this.mediaRecorder = new MediaRecorder(stream)
+        // Use WebM with Opus codec for better compatibility
+        // If that's not supported, fall back to default
+        const options = {
+          mimeType: 'audio/webm;codecs=opus'
+        }
+        
+        try {
+          this.mediaRecorder = new MediaRecorder(stream, options)
+          console.log('Using MIME type:', this.mediaRecorder.mimeType)
+        } catch (e) {
+          console.warn('WebM with Opus not supported, using default codec')
+          this.mediaRecorder = new MediaRecorder(stream)
+          console.log('Using MIME type:', this.mediaRecorder.mimeType)
+        }
+        
         this.audioChunks = []
         
         this.mediaRecorder.addEventListener('dataavailable', event => {
-          this.audioChunks.push(event.data)
+          if (event.data.size > 0) {
+            this.audioChunks.push(event.data)
+            console.log(`Received audio chunk: ${event.data.size} bytes`)
+          }
         })
         
         this.mediaRecorder.addEventListener('stop', () => this.processRecording())
         
-        this.mediaRecorder.start()
+        // Request data every second to ensure we get data even if recording is interrupted
+        this.mediaRecorder.start(1000)
         this.recordingStatusTarget.textContent = 'Recording...'
         this.recordButtonTarget.classList.add('hidden')
         this.stopButtonTarget.classList.remove('hidden')
@@ -47,15 +74,36 @@ export default class extends Controller {
   }
   
   processRecording() {
-    this.audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' })
+    // Determine the correct MIME type based on what was recorded
+    const mimeType = this.mediaRecorder ? this.mediaRecorder.mimeType : 'audio/webm'
+    console.log(`Creating blob with MIME type: ${mimeType}`)
+    
+    // Create a blob from the audio chunks with the correct MIME type
+    this.audioBlob = new Blob(this.audioChunks, { type: mimeType })
     this.audioUrl = URL.createObjectURL(this.audioBlob)
     
-    // Log blob size
+    // Log blob size and type
     console.log(`Audio blob size: ${this.audioBlob.size} bytes`)
+    console.log(`Audio blob type: ${this.audioBlob.type}`)
+    
+    if (this.audioBlob.size === 0) {
+      console.error('Audio blob is empty!')
+      this.recordingStatusTarget.textContent = 'Error: No audio data recorded. Please try again.'
+      return
+    }
     
     // Set the audio player source
     this.audioPlayerTarget.src = this.audioUrl
     this.audioPreviewTarget.classList.remove('hidden')
+    
+    // Add an event listener to check if the audio can be played
+    this.audioPlayerTarget.addEventListener('canplay', () => {
+      console.log('Audio can be played in the preview player')
+    })
+    
+    this.audioPlayerTarget.addEventListener('error', (e) => {
+      console.error('Error loading audio in preview player:', e)
+    })
     
     // Convert blob to base64 for form submission
     const reader = new FileReader()
@@ -63,10 +111,17 @@ export default class extends Controller {
     reader.onloadend = () => {
       const base64data = reader.result
       console.log(`Base64 data length: ${base64data.length} characters`)
+      console.log(`Base64 data starts with: ${base64data.substring(0, 50)}...`)
       
       // Store the audio data in the form
       const audioDataInput = document.getElementById('transcription_audio_data')
       audioDataInput.value = base64data
+      
+      // Store the audio data as a data attribute on the form for later retrieval
+      this.transcriptionFormTarget.dataset.audioData = base64data
+      
+      // Also store the MIME type for reference
+      this.transcriptionFormTarget.dataset.audioMimeType = mimeType
       
       // Verify the data was set
       console.log(`Audio data input value length: ${audioDataInput.value.length} characters`)
@@ -126,10 +181,47 @@ export default class extends Controller {
       console.log('Form updated with transcribed text')
       console.log('Text content input value:', textContentInput.value)
       
+      // Add an event listener to the form to ensure audio data is included when the form is submitted
+      this.transcriptionFormTarget.addEventListener('submit', this.ensureAudioDataIncluded.bind(this), { once: true })
+      
       this.recordingStatusTarget.textContent = 'Transcription complete. You can now save and analyze the grammar.'
     } catch (error) {
       console.error('Error during transcription:', error)
       this.recordingStatusTarget.textContent = `Error: ${error.message}. Please try again.`
+    }
+  }
+
+  // Ensure audio data is included in the form submission
+  ensureAudioDataIncluded(event) {
+    // Get the stored audio data
+    const audioData = this.transcriptionFormTarget.dataset.audioData
+    
+    if (audioData) {
+      console.log('Adding audio data to form submission')
+      const audioDataInput = document.getElementById('transcription_audio_data')
+      
+      // Always restore from saved data to ensure we have the complete audio data
+      console.log('Ensuring audio data is included in form submission')
+      audioDataInput.value = audioData
+      
+      // Log the data being submitted
+      console.log(`Form submission audio data length: ${audioDataInput.value.length} characters`)
+      console.log(`Audio MIME type: ${this.transcriptionFormTarget.dataset.audioMimeType || 'unknown'}`)
+      
+      // Add a hidden field with the MIME type if it exists
+      if (this.transcriptionFormTarget.dataset.audioMimeType) {
+        let mimeTypeInput = document.getElementById('audio_mime_type')
+        if (!mimeTypeInput) {
+          mimeTypeInput = document.createElement('input')
+          mimeTypeInput.type = 'hidden'
+          mimeTypeInput.id = 'audio_mime_type'
+          mimeTypeInput.name = 'audio_mime_type'
+          this.transcriptionFormTarget.appendChild(mimeTypeInput)
+        }
+        mimeTypeInput.value = this.transcriptionFormTarget.dataset.audioMimeType
+      }
+    } else {
+      console.warn('No audio data found for form submission')
     }
   }
 }

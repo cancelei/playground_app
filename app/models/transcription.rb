@@ -14,6 +14,7 @@ class Transcription < ApplicationRecord
     # Extract the base64 encoded audio data
     if data.include?('base64')
       begin
+        # Extract content type and data
         content_type = data.match(/data:(.*);base64/)[1]
         base64_data = data.split(',')[1]
         decoded_data = Base64.decode64(base64_data)
@@ -21,17 +22,49 @@ class Transcription < ApplicationRecord
         # Log the decoded data size
         Rails.logger.info("Decoded audio data size: #{decoded_data.bytesize} bytes")
         
-        # Create a temp file with the decoded data
-        filename = "audio_#{Time.current.to_i}.webm"
+        # Normalize content type - ensure we're using a widely supported format
+        # WebM is widely supported for audio in browsers
+        normalized_content_type = 'audio/webm'
         
-        # Attach the file
+        # Create a filename with the correct extension based on content type
+        extension = case normalized_content_type
+                    when 'audio/webm' then 'webm'
+                    when 'audio/mp4', 'audio/mp4a-latm' then 'mp4'
+                    when 'audio/mpeg' then 'mp3'
+                    when 'audio/ogg', 'audio/opus' then 'ogg'
+                    else 'webm' # Default to webm
+                    end
+        
+        filename = "audio_#{Time.current.to_i}.#{extension}"
+        
+        # Purge any existing audio file to avoid duplicates
+        audio_file.purge if audio_file.attached?
+        
+        # Write to a temporary file to ensure proper handling
+        temp_file = Tempfile.new(["audio", ".#{extension}"])
+        temp_file.binmode
+        temp_file.write(decoded_data)
+        temp_file.rewind
+        
+        # Attach the file using the temp file to ensure data is properly stored
         audio_file.attach(
-          io: StringIO.new(decoded_data),
+          io: temp_file,
           filename: filename,
-          content_type: content_type
+          content_type: normalized_content_type
         )
         
-        Rails.logger.info("Audio file attached successfully: #{filename}")
+        # Ensure the attachment was successful
+        if audio_file.attached?
+          Rails.logger.info("Audio file attached successfully: #{filename}")
+          Rails.logger.info("Audio file content type: #{audio_file.content_type}")
+          Rails.logger.info("Audio file byte size: #{audio_file.byte_size}")
+        else
+          Rails.logger.error("Failed to attach audio file")
+        end
+        
+        # Clean up the temp file
+        temp_file.close
+        temp_file.unlink
       rescue => e
         Rails.logger.error("Error processing audio data: #{e.message}")
         Rails.logger.error("Backtrace: #{e.backtrace.join('\n')}")

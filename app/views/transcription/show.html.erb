@@ -22,10 +22,35 @@
       <h2 class="text-lg font-medium text-gray-900 mb-3">Audio Recording</h2>
       <div class="bg-gray-50 rounded-lg p-4">
         <% if @transcription.audio_file.attached? %>
-          <audio controls class="w-full">
-            <source src="<%= url_for(@transcription.audio_file) %>" type="<%= @transcription.audio_file.content_type %>">
-            Your browser does not support the audio element.
-          </audio>
+          <div class="mb-2">
+            <audio controls class="w-full" id="audio-player">
+              <!-- Use our custom audio route that ensures correct content type -->
+              <source src="<%= transcription_audio_path(@transcription) %>" type="audio/webm">
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+          <div class="text-xs text-gray-500 flex justify-between items-center">
+            <span>Audio format: <%= @transcription.audio_file.content_type %> (served as audio/webm)</span>
+            <a href="<%= transcription_audio_path(@transcription) %>" download="audio_<%= @transcription.id %>.webm" class="text-indigo-600 hover:text-indigo-900">Download audio</a>
+          </div>
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              const audioPlayer = document.getElementById('audio-player');
+              
+              // Log when audio can be played
+              audioPlayer.addEventListener('canplay', function() {
+                console.log('Audio can be played!');
+              });
+              
+              // Log any errors
+              audioPlayer.addEventListener('error', function(e) {
+                console.error('Audio playback error:', e);
+              });
+              
+              // Force reload the audio to ensure it uses the new route
+              audioPlayer.load();
+            });
+          </script>
         <% else %>
           <div class="flex items-center justify-center h-20 bg-gray-100 rounded-md">
             <p class="text-sm text-gray-500">No audio file available</p>

@@ -13,6 +13,11 @@ class TranscriptionController < ApplicationController
       Rails.logger.info("Audio data is present in the request")
       audio_data_length = transcription_params[:audio_data].length
       Rails.logger.info("Audio data length: #{audio_data_length} characters")
+      
+      # Log audio MIME type if provided
+      if params[:audio_mime_type].present?
+        Rails.logger.info("Audio MIME type provided: #{params[:audio_mime_type]}")
+      end
     else
       Rails.logger.warn("No audio data present in the request")
     end
@@ -61,6 +66,27 @@ class TranscriptionController < ApplicationController
     @transcription = Transcription.find(params[:id])
   end
   
+  # Serve audio file with correct content type
+  def audio
+    @transcription = Transcription.find(params[:id])
+    
+    if @transcription.audio_file.attached?
+      # Set appropriate headers for audio streaming
+      response.headers['Content-Type'] = 'audio/webm'
+      response.headers['Accept-Ranges'] = 'bytes'
+      response.headers['Content-Disposition'] = 'inline'
+      
+      # Stream the file directly
+      send_data @transcription.audio_file.download, 
+                type: 'audio/webm',
+                disposition: 'inline'
+    else
+      render plain: 'No audio file available', status: :not_found
+    end
+  rescue ActiveStorage::FileNotFoundError
+    render plain: 'Audio file not found', status: :not_found
+  end
+  
   # API endpoint for transcribing audio
   def transcribe
     begin
@@ -107,6 +133,10 @@ class TranscriptionController < ApplicationController
   private
 
   def transcription_params
-    params.require(:transcription).permit(:audio_data, :text_content)
+    # Include audio_mime_type in permitted params if it's present in the form
+    permitted_params = [:audio_data, :text_content]
+    permitted_params << :audio_mime_type if params[:audio_mime_type].present?
+    
+    params.require(:transcription).permit(permitted_params)
   end
 end

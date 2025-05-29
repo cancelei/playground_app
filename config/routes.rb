@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   get "transcription", to: "transcription#index", as: :transcription
   post "transcription", to: "transcription#create", as: :transcription_create
   get "transcription/:id", to: "transcription#show", as: :transcription_show
+  get "transcription/:id/audio", to: "transcription#audio", as: :transcription_audio
   post "transcription/transcribe", to: "transcription#transcribe", as: :transcription_transcribe
 
   # Practice History routes
