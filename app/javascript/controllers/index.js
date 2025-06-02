@@ -16,5 +16,14 @@ application.register("openai-transcription", OpenaiTranscriptionController)
 import AnalyticsController from "./analytics_controller"
 application.register("analytics", AnalyticsController)
 
+import GrammarErrorController from "./grammar_error_controller"
+application.register("grammar-error", GrammarErrorController)
+
 import TranscriptionController from "./transcription_controller"
 application.register("transcription", TranscriptionController)
+
+import DropdownController from "./dropdown_controller"
+application.register("dropdown", DropdownController)
+
+import MobileMenuController from "./mobile_menu_controller"
+application.register("mobile-menu", MobileMenuController)

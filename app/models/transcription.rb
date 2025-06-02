@@ -40,15 +40,12 @@ class Transcription < ApplicationRecord
         # Purge any existing audio file to avoid duplicates
         audio_file.purge if audio_file.attached?
         
-        # Write to a temporary file to ensure proper handling
-        temp_file = Tempfile.new(["audio", ".#{extension}"])
-        temp_file.binmode
-        temp_file.write(decoded_data)
-        temp_file.rewind
+        # Use StringIO instead of Tempfile to avoid closed stream issues
+        io = StringIO.new(decoded_data)
         
-        # Attach the file using the temp file to ensure data is properly stored
+        # Attach the file using StringIO to ensure data is properly stored
         audio_file.attach(
-          io: temp_file,
+          io: io,
           filename: filename,
           content_type: normalized_content_type
         )
@@ -61,10 +58,6 @@ class Transcription < ApplicationRecord
         else
           Rails.logger.error("Failed to attach audio file")
         end
-        
-        # Clean up the temp file
-        temp_file.close
-        temp_file.unlink
       rescue => e
         Rails.logger.error("Error processing audio data: #{e.message}")
         Rails.logger.error("Backtrace: #{e.backtrace.join('\n')}")
