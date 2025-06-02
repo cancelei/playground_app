@@ -1,0 +1,63 @@
+<div class="fixed bottom-4 right-4 z-50">
+  <button 
+    id="lead-capture-toggle" 
+    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-5 rounded-full shadow-lg flex items-center transition-all duration-300"
+    data-controller="lead-toggle"
+    data-action="click->lead-toggle#toggle"
+  >
+    <span class="mr-2">Get Access</span>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+    </svg>
+  </button>
+  
+  <div 
+    id="lead-capture-form" 
+    class="hidden bg-white rounded-lg shadow-xl p-6 w-80 absolute bottom-16 right-0 border border-gray-200"
+    data-lead-toggle-target="form"
+  >
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-medium text-gray-900">Request Access</h3>
+      <button 
+        class="text-gray-400 hover:text-gray-500" 
+        data-action="lead-toggle#toggle"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+      </button>
+    </div>
+    
+    <form action="https://flukebase.me/leads" method="post" data-turbo="false" class="space-y-4">
+      <div>
+        <label for="popup-name" class="block text-sm font-medium text-gray-700">Name</label>
+        <input type="text" name="name" id="popup-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Your name">
+      </div>
+      
+      <div>
+        <label for="popup-email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input type="email" name="email" id="popup-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="you@example.com" required>
+      </div>
+      
+      <div>
+        <label for="popup-features" class="block text-sm font-medium text-gray-700">Features of Interest</label>
+        <select id="popup-features" name="features" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+          <option value="all">All Features</option>
+          <option value="realtime">Real-Time AI Conversations</option>
+          <option value="transcription">Audio Transcription</option>
+          <option value="grammar">Grammar Analysis</option>
+          <option value="analytics">Progress Tracking & Analytics</option>
+        </select>
+      </div>
+      
+      <input type="hidden" name="source" value="playground-popup">
+      <input type="hidden" name="page" value="<%= request.path %>">
+      
+      <div>
+        <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Request Access
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
