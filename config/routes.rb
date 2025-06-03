@@ -32,5 +32,5 @@ Rails.application.routes.draw do
   get "analytics", to: "analytics#index", as: :analytics
 
   # Defines the root path route ("/")
-  root "home#index"
+  root "realtime#index"
 end
