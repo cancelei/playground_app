@@ -7,7 +7,7 @@ class RealtimeController < ApplicationController
     # Available model options - updated to latest versions
     @model_options = [
       "gpt-4o-mini-realtime-preview-2024-12-17",  # More reliable option
-      "gpt-4o-realtime-preview-2024-12-17",       # Stronger option
+      "gpt-4o-realtime-preview-2024-12-17"       # Stronger option
     ]
 
     @voice_options = [
@@ -21,7 +21,7 @@ class RealtimeController < ApplicationController
     ]
 
     # Load conversation turns for the session (placeholder session_id for now)
-    @conversation_turns = ConversationTurn.where(session_id: 'demo').order(:created_at)
+    @conversation_turns = ConversationTurn.where(session_id: "demo").order(:created_at)
 
     # Provide info about the API key being used
     api_key = ENV["OPENAI_API_KEY"]
@@ -211,7 +211,7 @@ class RealtimeController < ApplicationController
     @conversation_turn = ConversationTurn.new(
       role: params[:role],
       content: params[:content],
-      session_id: params[:session_id] || 'demo'
+      session_id: params[:session_id] || "demo"
     )
     if @conversation_turn.save
       respond_to do |format|

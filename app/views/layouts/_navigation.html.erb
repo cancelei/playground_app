@@ -8,13 +8,13 @@
               <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
               </svg>
-              Playground
+              Playground by Flukebase
             </span>
           </a>
         </div>
         <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-8">
           <!-- Main navigation items -->
-          <a href="/" class="<%= current_page?(root_path) ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-150">
+          <a href="<%= realtime_path %>" class="<%= current_page?(realtime_path) ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' %> inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition duration-150">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
@@ -95,7 +95,7 @@
   <!-- Mobile menu, show/hide based on menu state. -->
   <div class="hidden sm:hidden" id="mobile-menu" data-mobile-menu-target="menu">
     <div class="pt-2 pb-3 space-y-1">
-      <a href="/" class="<%= current_page?(root_path) ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800' %> block pl-3 pr-4 py-2 border-l-4 text-base font-medium flex items-center">
+      <a href="<%= realtime_path %>" class="<%= current_page?(realtime_path) ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800' %> block pl-3 pr-4 py-2 border-l-4 text-base font-medium flex items-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>

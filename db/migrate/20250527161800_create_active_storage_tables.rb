@@ -2,7 +2,7 @@ class CreateActiveStorageTables < ActiveRecord::Migration[8.0]
   def change
     # Use Active Storage built-in migration if not already created
     return if table_exists?(:active_storage_blobs)
-    
+
     # Create active_storage_blobs table
     create_table :active_storage_blobs do |t|
       t.string   :key,          null: false

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_27_191218) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_03_175919) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -68,6 +68,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_27_191218) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["transcription_id"], name: "index_grammar_errors_on_transcription_id"
+  end
+
+  create_table "leads", force: :cascade do |t|
+    t.string "name"
+    t.string "email"
+    t.string "company_name"
+    t.text "interest_details"
+    t.boolean "contacted"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_leads_on_email", unique: true
   end
 
   create_table "transcriptions", force: :cascade do |t|

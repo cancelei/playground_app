@@ -5,15 +5,15 @@ class TranscriptionController < ApplicationController
 
   def create
     Rails.logger.info("Creating new transcription with params: #{transcription_params.to_h.except(:audio_data)}")
-    
+
     @transcription = Transcription.new(transcription_params)
-    
+
     # Log audio data presence
     if transcription_params[:audio_data].present?
       Rails.logger.info("Audio data is present in the request")
       audio_data_length = transcription_params[:audio_data].length
       Rails.logger.info("Audio data length: #{audio_data_length} characters")
-      
+
       # Log audio MIME type if provided
       if params[:audio_mime_type].present?
         Rails.logger.info("Audio MIME type provided: #{params[:audio_mime_type]}")
@@ -21,11 +21,11 @@ class TranscriptionController < ApplicationController
     else
       Rails.logger.warn("No audio data present in the request")
     end
-    
+
     if @transcription.save
       Rails.logger.info("Transcription saved successfully with ID: #{@transcription.id}")
       Rails.logger.info("Transcription text content: #{@transcription.text_content}")
-      
+
       # Check if audio file was attached
       if @transcription.audio_file.attached?
         Rails.logger.info("Audio file successfully attached to transcription")
@@ -34,7 +34,7 @@ class TranscriptionController < ApplicationController
       else
         Rails.logger.warn("No audio file attached to transcription")
       end
-      
+
       # Process the transcription with grammar analysis
       begin
         if Rails.env.development?
@@ -51,7 +51,7 @@ class TranscriptionController < ApplicationController
         Rails.logger.error("Backtrace: #{e.backtrace.join('\n')}")
         # Continue with the response even if the job fails
       end
-      
+
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to transcription_show_path(@transcription) }
@@ -65,44 +65,44 @@ class TranscriptionController < ApplicationController
   def show
     @transcription = Transcription.find(params[:id])
   end
-  
+
   # Serve audio file with correct content type
   def audio
     @transcription = Transcription.find(params[:id])
-    
+
     if @transcription.audio_file.attached?
       # Set appropriate headers for audio streaming
-      response.headers['Content-Type'] = 'audio/webm'
-      response.headers['Accept-Ranges'] = 'bytes'
-      response.headers['Content-Disposition'] = 'inline'
-      
+      response.headers["Content-Type"] = "audio/webm"
+      response.headers["Accept-Ranges"] = "bytes"
+      response.headers["Content-Disposition"] = "inline"
+
       # Stream the file directly
-      send_data @transcription.audio_file.download, 
-                type: 'audio/webm',
-                disposition: 'inline'
+      send_data @transcription.audio_file.download,
+                type: "audio/webm",
+                disposition: "inline"
     else
-      render plain: 'No audio file available', status: :not_found
+      render plain: "No audio file available", status: :not_found
     end
   rescue ActiveStorage::FileNotFoundError
-    render plain: 'Audio file not found', status: :not_found
+    render plain: "Audio file not found", status: :not_found
   end
-  
+
   # API endpoint for transcribing audio
   def transcribe
     begin
       Rails.logger.info("Received transcription request")
-      
+
       # Get the audio data from the request
       audio_data = params[:audio_data]
-      
+
       if audio_data.nil? || audio_data.empty?
         Rails.logger.error("No audio data received in request")
         render json: { error: "No audio data provided" }, status: :bad_request
         return
       end
-      
+
       # Log audio data format
-      if audio_data.is_a?(String) && audio_data.include?('base64')
+      if audio_data.is_a?(String) && audio_data.include?("base64")
         Rails.logger.info("Received base64 audio data, length: #{audio_data.length} characters")
         content_type = audio_data.match(/data:(.*);base64/)[1]
         Rails.logger.info("Audio content type: #{content_type}")
@@ -111,16 +111,16 @@ class TranscriptionController < ApplicationController
       else
         Rails.logger.info("Received audio data of type: #{audio_data.class}")
       end
-      
+
       Rails.logger.info("Starting transcription process")
-      
+
       # Use the TranscriptionService to transcribe the audio
       transcription_service = TranscriptionService.new(audio_data)
       transcribed_text = transcription_service.transcribe
-      
+
       Rails.logger.info("Transcription successful, text length: #{transcribed_text.length}")
       Rails.logger.info("Transcribed text: #{transcribed_text}")
-      
+
       # Return the transcribed text as JSON
       render json: { text: transcribed_text }
     rescue => e
@@ -134,9 +134,9 @@ class TranscriptionController < ApplicationController
 
   def transcription_params
     # Include audio_mime_type in permitted params if it's present in the form
-    permitted_params = [:audio_data, :text_content]
+    permitted_params = [ :audio_data, :text_content ]
     permitted_params << :audio_mime_type if params[:audio_mime_type].present?
-    
+
     params.require(:transcription).permit(permitted_params)
   end
 end

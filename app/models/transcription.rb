@@ -1,55 +1,55 @@
 class Transcription < ApplicationRecord
   has_many :grammar_errors, dependent: :destroy
   has_many :grammar_corrections, through: :grammar_errors
-  
+
   validates :text_content, presence: true
-  
+
   # For handling audio uploads
   has_one_attached :audio_file
-  
+
   # Method to process the audio data from base64
   def audio_data=(data)
     return unless data.present?
-    
+
     # Extract the base64 encoded audio data
-    if data.include?('base64')
+    if data.include?("base64")
       begin
         # Extract content type and data
         content_type = data.match(/data:(.*);base64/)[1]
-        base64_data = data.split(',')[1]
+        base64_data = data.split(",")[1]
         decoded_data = Base64.decode64(base64_data)
-        
+
         # Log the decoded data size
         Rails.logger.info("Decoded audio data size: #{decoded_data.bytesize} bytes")
-        
+
         # Normalize content type - ensure we're using a widely supported format
         # WebM is widely supported for audio in browsers
-        normalized_content_type = 'audio/webm'
-        
+        normalized_content_type = "audio/webm"
+
         # Create a filename with the correct extension based on content type
         extension = case normalized_content_type
-                    when 'audio/webm' then 'webm'
-                    when 'audio/mp4', 'audio/mp4a-latm' then 'mp4'
-                    when 'audio/mpeg' then 'mp3'
-                    when 'audio/ogg', 'audio/opus' then 'ogg'
-                    else 'webm' # Default to webm
-                    end
-        
+        when "audio/webm" then "webm"
+        when "audio/mp4", "audio/mp4a-latm" then "mp4"
+        when "audio/mpeg" then "mp3"
+        when "audio/ogg", "audio/opus" then "ogg"
+        else "webm" # Default to webm
+        end
+
         filename = "audio_#{Time.current.to_i}.#{extension}"
-        
+
         # Purge any existing audio file to avoid duplicates
         audio_file.purge if audio_file.attached?
-        
+
         # Use StringIO instead of Tempfile to avoid closed stream issues
         io = StringIO.new(decoded_data)
-        
+
         # Attach the file using StringIO to ensure data is properly stored
         audio_file.attach(
           io: io,
           filename: filename,
           content_type: normalized_content_type
         )
-        
+
         # Ensure the attachment was successful
         if audio_file.attached?
           Rails.logger.info("Audio file attached successfully: #{filename}")
@@ -66,19 +66,19 @@ class Transcription < ApplicationRecord
       Rails.logger.warn("Audio data does not contain base64 encoding")
     end
   end
-  
+
   # Check if this transcription has been analyzed for grammar errors
   def analyzed?
     # Check either if we have a timestamp or if we have grammar errors
     analyzed_at.present? || grammar_errors.any?
   end
-  
+
   # Get corrected version of the text
   def corrected_text
     return text_content unless analyzed?
-    
+
     corrected = text_content.dup
-    
+
     # Apply corrections in reverse order of position to avoid offset issues
     grammar_errors.order(position: :desc).each do |error|
       if error.grammar_corrections.any?
@@ -86,17 +86,17 @@ class Transcription < ApplicationRecord
         corrected[error.position, error.length] = correction.corrected_text
       end
     end
-    
+
     corrected
   end
-  
+
   # Get a clean version of the corrected text for display
   def clean_corrected_text
     return text_content unless analyzed?
-    
+
     # Create a completely new string with all corrections applied
     # We need to handle overlapping errors carefully
-    
+
     # First, get all errors with their corrections
     errors_with_corrections = grammar_errors.includes(:grammar_corrections)
       .select { |error| error.grammar_corrections.any? }
@@ -108,17 +108,17 @@ class Transcription < ApplicationRecord
           correction: error.grammar_corrections.first.corrected_text
         }
       end
-    
+
     # If no corrections, return the original text
     return text_content if errors_with_corrections.empty?
-    
+
     # Sort by position
     errors_with_corrections.sort_by! { |e| e[:position] }
-    
+
     # Check for overlapping errors and remove them
     non_overlapping = []
     current_end = -1
-    
+
     errors_with_corrections.each do |error|
       if error[:position] >= current_end
         non_overlapping << error
@@ -127,33 +127,33 @@ class Transcription < ApplicationRecord
         Rails.logger.warn("Skipping overlapping error at position #{error[:position]}")
       end
     end
-    
+
     # Build the corrected text
     result = ""
     current_pos = 0
-    
+
     non_overlapping.each do |error|
       # Add text before this error
       if error[:position] > current_pos
         result += text_content[current_pos...error[:position]]
       end
-      
+
       # Add the correction
       result += error[:correction]
-      
+
       # Update current position
       current_pos = error[:end_pos]
     end
-    
+
     # Add any remaining text
     if current_pos < text_content.length
       result += text_content[current_pos..]
     end
-    
+
     # Log the result for debugging
     Rails.logger.debug("Original text: #{text_content}")
     Rails.logger.debug("Corrected text: #{result}")
-    
+
     result
   end
 end

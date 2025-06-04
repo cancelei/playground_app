@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get "static_pages/home"
+  resources :leads, only: [ :create ]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -32,5 +34,5 @@ Rails.application.routes.draw do
   get "analytics", to: "analytics#index", as: :analytics
 
   # Defines the root path route ("/")
-  root "realtime#index"
+  root "static_pages#home"  # New homepage
 end
