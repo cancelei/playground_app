@@ -1,4 +1,13 @@
 Rails.application.routes.draw do
+  # User authentication
+  devise_for :users, controllers: {
+    registrations: "users/registrations"
+  }
+
+  # User profile
+  get "profile", to: "profiles#show", as: :profile
+  patch "profile/update_notification_preferences", to: "profiles#update_notification_preferences", as: :update_notification_preferences
+
   get "static_pages/home"
   resources :leads, only: [ :create ]
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

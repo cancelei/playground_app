@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+</head>
+<body>
+  <h1>Account Deletion Warning: Inactivity Detected</h1>
+  <p>
+    Hello <%= @user.name %>,
+  </p>
+  <p>
+    We've noticed that you haven't logged into your Playground account for a while.
+  </p>
+  <p>
+    <strong>Your account will be automatically deleted in <%= @days_remaining %> days</strong> due to inactivity.
+  </p>
+  <p>
+    To keep your account active, simply log in by clicking the link below:
+    <br>
+    <%= link_to 'Log In Now', @login_url %>
+  </p>
+  <p>
+    If you no longer wish to use Playground, no action is required and your account will be automatically removed.
+  </p>
+  <hr>
+  <p><small>
+    <strong>Account Policy:</strong> Accounts that remain inactive for 30 consecutive days are automatically deleted to maintain data privacy and system performance.
+    You can update your notification preferences in your account settings.
+  </small></p>
+</body>
+</html>

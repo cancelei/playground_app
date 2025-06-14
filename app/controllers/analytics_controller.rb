@@ -1,5 +1,6 @@
 class AnalyticsController < ApplicationController
   include AnalyticsHelper
+  before_action :check_user_registration
 
   def index
     # Get counts of errors by type

@@ -1,0 +1,24 @@
+<div class="max-w-md mx-auto mt-8 mb-16">
+  <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Reset Password</h2>
+  
+  <div class="bg-white p-8 rounded-lg shadow-md">
+    <p class="text-gray-600 mb-6 text-center">Enter your email address and we'll send you instructions to reset your password.</p>
+    
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="mb-6">
+        <%= f.label :email, class: "block text-gray-700 text-sm font-bold mb-2" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500" %>
+      </div>
+
+      <div class="flex items-center justify-center">
+        <%= f.submit "Send Reset Instructions", class: "w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline transition duration-150 ease-in-out" %>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <%= link_to "Back to login", new_session_path(resource_name), class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+  </div>
+</div>

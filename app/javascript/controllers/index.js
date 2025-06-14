@@ -27,3 +27,6 @@ application.register("dropdown", DropdownController)
 
 import MobileMenuController from "./mobile_menu_controller"
 application.register("mobile-menu", MobileMenuController)
+
+import TrialCountdownController from "./trial_countdown_controller"
+application.register("trial-countdown", TrialCountdownController)

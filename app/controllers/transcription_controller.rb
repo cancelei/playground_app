@@ -1,4 +1,6 @@
 class TranscriptionController < ApplicationController
+  before_action :check_user_registration
+
   def index
     @transcriptions = Transcription.order(created_at: :desc).limit(10)
   end

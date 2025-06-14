@@ -1,0 +1,39 @@
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+    <div class="text-center">
+      <h2 class="mt-2 text-2xl font-bold text-gray-900">Unlock Your Account</h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Your account has been locked due to too many unsuccessful sign-in attempts. Enter your email to receive unlock instructions.
+      </p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post, class: "mt-8 space-y-6" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="rounded-md -space-y-px">
+        <div class="relative">
+          <%= f.label :email, class: "sr-only" %>
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+          </div>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "appearance-none rounded-md relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm", placeholder: "Email address" %>
+        </div>
+      </div>
+
+      <div class="text-sm text-gray-600 mt-2">
+        <p>We'll send instructions to unlock your account to the email address you provide.</p>
+      </div>
+
+      <div>
+        <%= f.submit "Send Unlock Instructions", class: "group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out" %>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-center">
+      <%= render "devise/shared/links" %>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,6 @@
 class PracticeHistoryController < ApplicationController
+  before_action :check_user_registration
+
   def index
     @transcriptions = Transcription.includes(:grammar_errors)
                                    .where.not(grammar_errors: { id: nil })

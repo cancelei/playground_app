@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+</head>
+<body>
+  <h1>Action Required: Activate Your Account</h1>
+  <p>
+    Hello <%= @user.name %>,
+  </p>
+  <p>
+    Thank you for registering with Playground. Your account needs to be activated within 24 hours of registration.
+  </p>
+  <p>
+    <strong>You have <%= @hours_remaining %> hours remaining</strong> to activate your account before it is automatically deleted.
+  </p>
+  <p>
+    To activate your account, please click the link below:
+    <br>
+    <%= link_to 'Activate My Account', @confirmation_url %>
+  </p>
+  <p>
+    If you did not create this account, please ignore this email.
+  </p>
+  <hr>
+  <p><small>
+    <strong>Account Policy:</strong> Unactivated accounts are automatically deleted after 24 hours. 
+    Activated accounts that remain inactive for 30 consecutive days will also be deleted.
+  </small></p>
+</body>
+</html>

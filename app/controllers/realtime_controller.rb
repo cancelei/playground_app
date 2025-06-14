@@ -1,4 +1,5 @@
 class RealtimeController < ApplicationController
+  before_action :check_user_registration
   # Skip CSRF protection for API endpoints
   skip_forgery_protection only: [ :create_session, :process_audio, :sdp_exchange, :create_conversation_turn ]
   # GET /realtime

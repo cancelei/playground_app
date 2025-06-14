@@ -46,50 +46,75 @@
     </div>
   </section>
 
-  <section class="bg-gray-50 p-8 rounded-lg shadow-lg">
-    <h2 class="text-3xl font-semibold text-gray-700 mb-6 text-center">Interested in these Features for Your App?</h2>
-    <p class="text-lg text-gray-600 mb-8 text-center max-w-2xl mx-auto">
-      Let us know how Flukebase can help you build cutting-edge language learning tools. 
-      Fill out the form below to get in touch with our team.
-    </p>
+  <% unless user_signed_in? %>
+    <section class="bg-indigo-50 p-8 rounded-lg shadow-lg mb-12">
+      <h2 class="text-3xl font-semibold text-gray-700 mb-6 text-center">Unlock Unlimited Access</h2>
+      <p class="text-lg text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+        Register for a free account to get unlimited access to all features of Playground.
+      </p>
+      <div class="flex justify-center">
+        <%= link_to "Register Now", new_user_registration_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline cursor-pointer text-lg" %>
+      </div>
+    </section>
+  <% else %>
+    <section class="bg-green-50 p-8 rounded-lg shadow-lg mb-12">
+      <h2 class="text-3xl font-semibold text-gray-700 mb-6 text-center">Welcome Back, <%= current_user.name %>!</h2>
+      <p class="text-lg text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+        You have full access to all features. Enjoy your language learning journey!
+      </p>
+      <div class="flex justify-center space-x-4">
+        <%= link_to "View Your Profile", profile_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline cursor-pointer text-lg" %>
+        <%= link_to "Start Practicing", transcription_path, class: "bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline cursor-pointer text-lg" %>
+      </div>
+    </section>
+  <% end %>
 
-    <%= form_with(model: @lead, url: leads_path, local: true, class: "max-w-xl mx-auto") do |form| %>
-      <% if @lead.errors.any? %>
-        <div id="error_explanation" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-          <strong class="font-bold">Please correct the following errors:</strong>
-          <ul class="mt-2 list-disc list-inside">
-            <% @lead.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
+  <% unless user_signed_in? %>
+    <section class="bg-gray-50 p-8 rounded-lg shadow-lg">
+      <h2 class="text-3xl font-semibold text-gray-700 mb-6 text-center">Interested in these Features for Your App?</h2>
+      <p class="text-lg text-gray-600 mb-8 text-center max-w-2xl mx-auto">
+        Let us know how Flukebase can help you build cutting-edge language learning tools. 
+        Fill out the form below to get in touch with our team.
+      </p>
+
+      <%= form_with(model: @lead, url: leads_path, local: true, class: "max-w-xl mx-auto") do |form| %>
+        <% if @lead.errors.any? %>
+          <div id="error_explanation" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+            <strong class="font-bold">Please correct the following errors:</strong>
+            <ul class="mt-2 list-disc list-inside">
+              <% @lead.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div class="mb-4">
+          <%= form.label :name, class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= form.text_field :name, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+        </div>
+
+        <div class="mb-4">
+          <%= form.label :email, class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= form.email_field :email, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+        </div>
+
+        <div class="mb-4">
+          <%= form.label :company_name, "Company Name (Optional)", class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= form.text_field :company_name, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
+        </div>
+
+        <div class="mb-6">
+          <%= form.label :interest_details, "Tell us about your interest", class: "block text-gray-700 text-sm font-bold mb-2" %>
+          <%= form.text_area :interest_details, rows: 4, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", placeholder: "E.g., Integrating AI chat into our language app, voice analysis for corporate training..." %>
+        </div>
+
+        <div class="flex items-center justify-center">
+          <%= form.submit "Register Interest", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline cursor-pointer text-lg" %>
         </div>
       <% end %>
-
-      <div class="mb-4">
-        <%= form.label :name, class: "block text-gray-700 text-sm font-bold mb-2" %>
-        <%= form.text_field :name, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
-      </div>
-
-      <div class="mb-4">
-        <%= form.label :email, class: "block text-gray-700 text-sm font-bold mb-2" %>
-        <%= form.email_field :email, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
-      </div>
-
-      <div class="mb-4">
-        <%= form.label :company_name, "Company Name (Optional)", class: "block text-gray-700 text-sm font-bold mb-2" %>
-        <%= form.text_field :company_name, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" %>
-      </div>
-
-      <div class="mb-6">
-        <%= form.label :interest_details, "Tell us about your interest", class: "block text-gray-700 text-sm font-bold mb-2" %>
-        <%= form.text_area :interest_details, rows: 4, class: "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", placeholder: "E.g., Integrating AI chat into our language app, voice analysis for corporate training..." %>
-      </div>
-
-      <div class="flex items-center justify-center">
-        <%= form.submit "Register Interest", class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:shadow-outline cursor-pointer text-lg" %>
-      </div>
-    <% end %>
-  </section>
+    </section>
+  <% end %>
 
   <footer class="text-center mt-12 py-6 border-t border-gray-200">
     <p class="text-gray-600">

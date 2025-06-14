@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+</head>
+<body>
+  <h1>Your Account Has Been Deleted</h1>
+  <p>
+    Hello <%= @user.name %>,
+  </p>
+  <p>
+    We're writing to inform you that your Playground account has been automatically deleted due to inactivity.
+  </p>
+  <p>
+    According to our account policy, accounts that remain inactive for 30 consecutive days are automatically removed from our system.
+  </p>
+  <p>
+    If you'd like to use Playground again in the future, you're welcome to create a new account:
+    <br>
+    <%= link_to 'Create New Account', @signup_url %>
+  </p>
+  <p>
+    Thank you for your previous interest in Playground. We hope to see you again soon!
+  </p>
+  <hr>
+  <p><small>
+    <strong>Account Policy:</strong> For security and data privacy, unactivated accounts are automatically deleted after 24 hours, 
+    and activated accounts that remain inactive for 30 consecutive days are also deleted.
+  </small></p>
+</body>
+</html>

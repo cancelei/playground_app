@@ -1,0 +1,72 @@
+<% if !user_signed_in? && session[:trial_started_at].present? %>
+  <% 
+    trial_start_time = Time.at(session[:trial_started_at])
+    trial_duration = 2.minutes
+    trial_end_time = trial_start_time + trial_duration
+    remaining_seconds = [(trial_end_time - Time.current).to_i, 0].max
+    
+    # Calculate percentage of time remaining
+    percentage_remaining = (remaining_seconds.to_f / (trial_duration.to_i) * 100).round
+  %>
+  
+  <div id="trial-banner" class="bg-indigo-600 text-white px-4 py-2 relative">
+    <div class="flex items-center justify-between max-w-7xl mx-auto">
+      <div class="flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>
+          <strong>Trial Mode:</strong> 
+          <span id="trial-countdown-timer"><%= remaining_seconds %></span> seconds remaining
+        </span>
+      </div>
+      <div>
+        <%= link_to "Sign Up", new_user_registration_path, class: "bg-white text-indigo-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-indigo-50 transition" %>
+        <%= link_to "Log In", new_user_session_path, class: "bg-indigo-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-indigo-400 transition ml-2" %>
+      </div>
+    </div>
+    
+    <!-- Progress bar -->
+    <div class="w-full bg-indigo-800 h-1 absolute bottom-0 left-0">
+      <div id="trial-countdown-progress" class="bg-white h-1" style="width: <%= percentage_remaining %>%"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Direct JavaScript approach for the countdown timer
+    document.addEventListener('DOMContentLoaded', function() {
+      const endTime = <%= trial_end_time.to_i %>;
+      const totalDuration = <%= trial_duration.to_i %>;
+      const timerElement = document.getElementById('trial-countdown-timer');
+      const progressElement = document.getElementById('trial-countdown-progress');
+      
+      // Update the timer immediately and then every second
+      updateTimer();
+      const countdownInterval = setInterval(updateTimer, 1000);
+      
+      function updateTimer() {
+        const currentTime = Math.floor(Date.now() / 1000);
+        const remainingSeconds = Math.max(0, endTime - currentTime);
+        
+        // Update the timer display
+        if (timerElement) {
+          timerElement.textContent = remainingSeconds;
+        }
+        
+        // Update the progress bar
+        if (progressElement) {
+          const percentageRemaining = (remainingSeconds / totalDuration) * 100;
+          progressElement.style.width = percentageRemaining + '%';
+        }
+        
+        // If time's up, reload the page to trigger the login redirect
+        if (remainingSeconds <= 0) {
+          clearInterval(countdownInterval);
+          setTimeout(function() {
+            window.location.reload();
+          }, 1000);
+        }
+      }
+    });
+  </script>
+<% end %>
