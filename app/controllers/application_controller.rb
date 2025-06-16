@@ -44,8 +44,7 @@ class ApplicationController < ActionController::Base
 
     if Time.current < trial_end_time
       # Trial still valid
-      remaining_seconds = (trial_end_time - Time.current).to_i
-      flash.now[:notice] = "Trial mode: #{remaining_seconds} seconds remaining. Sign in to continue after trial ends."
+      flash.now[:notice] = "Sign in to continue after trial ends."
       return true
     end
 
