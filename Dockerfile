@@ -128,7 +128,7 @@ RUN gem install foreman
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start server via Thruster by default, this can be overwritten at runtime
-EXPOSE 80
+EXPOSE 5000
 
 # Use Procfile to run both web and worker processes
 CMD ["foreman", "start", "-f", "Procfile"]
