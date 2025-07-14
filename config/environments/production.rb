@@ -80,10 +80,12 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
+  # Enable DNS rebinding protection and other `Host` header attacks.
   config.hosts = [
-    ENV.fetch("APPLICATION_HOST", "playground.flukebase.me"),  # Allow requests from configured host
-    /.*\.flukebase\.me/  # Allow requests from subdomains
+    "playground.flukebase.me"     # Allow requests from playground.flukebase.me
+    # Add other allowed hosts if needed
   ]
+  
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
